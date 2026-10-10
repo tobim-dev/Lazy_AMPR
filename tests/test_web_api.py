@@ -71,7 +71,7 @@ class WebApiTests(unittest.TestCase):
         self.fail(f"job {job_id} did not finish")
 
     def test_paths_outside_roots_are_rejected(self):
-        self.assertEqual(self.client.get("/api/browse", params={"path": "/etc"}).status_code, 403)
+        self.assertEqual(self.client.get("/api/browse", params={"path": str(self.root)}).status_code, 403)
         outside = self.client.get("/api/browse", params={"path": f"{self.games}/../.."})
         self.assertEqual(outside.status_code, 403)
         self.assertEqual(self.client.get("/api/browse", params={"path": "relative"}).status_code, 400)
@@ -100,7 +100,7 @@ class WebApiTests(unittest.TestCase):
         saved = self.client.put("/api/settings", json={"lz4_level": 99, "workers": 2}).json()
         self.assertEqual(saved["lz4_level"], 12)
         self.assertEqual(saved["workers"], 2)
-        self.assertEqual(self.client.put("/api/settings", json={"output_dir": "/etc"}).status_code, 403)
+        self.assertEqual(self.client.put("/api/settings", json={"output_dir": str(self.root / "elsewhere")}).status_code, 403)
         self.client.put("/api/settings", json={"lz4_level": 9, "workers": None})
 
     def test_pack_then_extract_through_jobs(self):
